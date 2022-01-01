@@ -1,10 +1,13 @@
 import { model, Schema } from "mongoose";
+import { RegistrationVerificationToken } from "./RegistrationVerificationToken";
+import { ObjectID } from "bson";
 
 export interface User {
   name: string;
   email: string;
   password: string;
   emailVerified: boolean;
+  registrationVerificationToken: RegistrationVerificationToken;
 }
 
 const schema = new Schema<User>({
@@ -27,6 +30,11 @@ const schema = new Schema<User>({
     type: Boolean,
     required: true,
     unique: false,
+  },
+  registrationVerificationToken: {
+    type: ObjectID,
+    required: true,
+    unique: true,
   },
 });
 
