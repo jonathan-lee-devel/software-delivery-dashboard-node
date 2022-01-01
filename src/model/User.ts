@@ -1,9 +1,10 @@
 import { model, Schema } from "mongoose";
 
-interface User {
+export interface User {
   name: string;
   email: string;
   password: string;
+  emailVerified: boolean;
 }
 
 const schema = new Schema<User>({
@@ -19,6 +20,11 @@ const schema = new Schema<User>({
   },
   password: {
     type: String,
+    required: true,
+    unique: false,
+  },
+  emailVerified: {
+    type: Boolean,
     required: true,
     unique: false,
   },

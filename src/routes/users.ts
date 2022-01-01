@@ -1,19 +1,15 @@
 import express from "express";
 import bcrypt from "bcrypt";
-import { UserModel } from "../model/User";
-import { body, validationResult } from "express-validator";
+import { User, UserModel } from "../model/User";
+import { body, query, validationResult } from "express-validator";
+import { RegistrationVerificationTokenModel } from "../model/RegistrationVerificationToken";
+import dotenv from "dotenv";
+import { HydratedDocument } from "mongoose";
+
+dotenv.config();
 
 const router = express.Router();
 
-/**
- * @api {POST} /users/register
- * @apiName Register new user
- * @apiPermission admin
- * @apiGroup user
- *
- * @apiParam {String} [name] name
- * @apiParam {String} [email] Email
- */
 router.post(
   "/register",
   body("name").exists(),
@@ -41,27 +37,55 @@ router.post(
 
     const { name, email, password } = req.body;
 
-    const newUser = new UserModel({
-      name,
-      email,
-      password: null,
-    });
+    let hashedPassword = "";
 
-    const salt = await bcrypt.genSalt(10);
-    newUser.password = await bcrypt.hash(password, salt);
+    try {
+      const salt = await bcrypt.genSalt(10);
+      hashedPassword = await bcrypt.hash(password, salt);
 
-    await newUser
-      .save()
-      .then((_) => {
-        return res.json({
-          registration_status: "Awaiting e-mail verification",
-        });
-      })
-      .catch((err) => {
-        console.error(err);
-        return res.sendStatus(500);
+      const existingUser: HydratedDocument<User> = await UserModel.findOne({
+        email,
       });
+      if (existingUser) {
+        if (existingUser.emailVerified) {
+          return res.status(400).json({
+            registration_status: "User already exists",
+          });
+        } else {
+          await UserModel.findByIdAndDelete(existingUser.id);
+        }
+      }
+
+      const newUser = new UserModel({
+        name,
+        email,
+        password: hashedPassword,
+        emailVerified: false,
+      });
+
+      await newUser.save();
+    } catch (err) {
+      console.error(err);
+
+      return res.status(500).json({
+        registration_status: "Error occurred during registration",
+      });
+    }
+
+    return res.json({ registration_status: "Awaiting e-mail verification" });
   }
 );
+
+router.get("/register/confirm", query("token").exists(), async (req, res) => {
+  const { token } = req.query;
+
+  const foundToken = await RegistrationVerificationTokenModel.find({
+    value: token,
+  });
+
+  const user = await UserModel.find({ foundToken });
+
+  return res.json({ token });
+});
 
 export { router as UsersRouter };
