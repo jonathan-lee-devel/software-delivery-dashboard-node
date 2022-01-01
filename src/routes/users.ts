@@ -10,6 +10,7 @@ import { HydratedDocument } from "mongoose";
 import dotenv from "dotenv";
 import { Response } from "express-serve-static-core";
 import { addMinutes } from "date-fns";
+import { randomBytes } from "crypto";
 
 dotenv.config();
 
@@ -63,8 +64,10 @@ router.post(
 
       const datePlusFifteenMinutes = addMinutes(new Date(), 15);
 
+      const tokenValue = await randomBytes(48);
+
       const registrationVerificationToken: RegistrationVerificationToken = {
-        value: "test",
+        value: tokenValue.toString("hex"),
         expiryDate: datePlusFifteenMinutes,
       };
 
