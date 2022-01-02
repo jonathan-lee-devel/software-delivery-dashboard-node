@@ -78,9 +78,9 @@ router.get("/register/confirm", query("token").exists(), async (req, res) => {
           value: token,
           msg: "Query parameter 'token' is required",
           param: "token",
-          location: "query",
-        },
-      ],
+          location: "query"
+        }
+      ]
     });
   }
 
@@ -99,10 +99,9 @@ router.get("/register/confirm", query("token").exists(), async (req, res) => {
 });
 
 router.post("/login", (req, res, next) => {
-  console.log("Logging in...");
   passport.authenticate("local", {
     successRedirect: "/",
-    failureRedirect: "/users/login",
+    failureRedirect: "/users/login"
   })(req, res, next);
 });
 
