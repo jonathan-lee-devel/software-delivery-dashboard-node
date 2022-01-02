@@ -1,16 +1,12 @@
 import express from "express";
-import bcrypt from "bcrypt";
-import { User, UserModel } from "../models/User";
 import { body, query, validationResult } from "express-validator";
-import {
-  RegistrationVerificationToken,
-  RegistrationVerificationTokenModel,
-} from "../models/RegistrationVerificationToken";
-import { HydratedDocument } from "mongoose";
 import dotenv from "dotenv";
+import passport from "passport";
+import {
+  RegistrationService,
+  RegistrationStatus,
+} from "../services/RegistrationService";
 import { Response } from "express-serve-static-core";
-import { addMinutes } from "date-fns";
-import { randomBytes } from "crypto";
 
 dotenv.config();
 
@@ -43,99 +39,85 @@ router.post(
 
     const { name, email, password } = req.body;
 
-    let hashedPassword = "";
-
-    try {
-      const salt = await bcrypt.genSalt(10);
-      hashedPassword = await bcrypt.hash(password, salt);
-
-      const existingUser: HydratedDocument<User> = await UserModel.findOne({
-        email,
-      });
-      if (existingUser) {
-        if (existingUser.emailVerified) {
-          return res.status(400).json({
-            registration_status: "User already exists",
-          });
-        } else {
-          await UserModel.findByIdAndDelete(existingUser.id);
-        }
-      }
-
-      const datePlusFifteenMinutes = addMinutes(new Date(), 15);
-
-      const tokenValue = await randomBytes(48);
-
-      const registrationVerificationToken: RegistrationVerificationToken = {
-        value: tokenValue.toString("hex"),
-        expiryDate: datePlusFifteenMinutes,
-      };
-
-      const registrationVerificationTokenModel =
-        new RegistrationVerificationTokenModel(registrationVerificationToken);
-      const registrationVerificationTokenDocument =
-        await registrationVerificationTokenModel.save();
-
-      const newUser = new UserModel({
+    const registrationStatus =
+      await RegistrationService.getInstance().registerUser(
         name,
         email,
-        password: hashedPassword,
-        emailVerified: false,
-        registrationVerificationToken: registrationVerificationTokenDocument.id,
-      });
-
-      await newUser.save();
-    } catch (err) {
-      console.error(err);
-
-      return registrationInternalServerError(res);
+        password
+      );
+    switch (registrationStatus) {
+      case RegistrationStatus.AWAITING_EMAIL_VERIFICATION:
+        return formattedRegistrationStatusResponse(
+          res,
+          200,
+          registrationStatus
+        );
+      case RegistrationStatus.USER_ALREADY_EXISTS:
+        return formattedRegistrationStatusResponse(
+          res,
+          409,
+          registrationStatus
+        );
+      default:
+        return formattedRegistrationStatusResponse(
+          res,
+          500,
+          registrationStatus
+        );
     }
-
-    return res.json({ registration_status: "Awaiting e-mail verification" });
   }
 );
 
 router.get("/register/confirm", query("token").exists(), async (req, res) => {
   const { token } = req.query;
-
-  const foundToken: HydratedDocument<RegistrationVerificationToken> =
-    await RegistrationVerificationTokenModel.findOne({
-      value: token,
-    });
-
-  if (!foundToken) {
+  if (!token) {
+    // Strange behaviour with express-validator query
     return res.status(400).json({
-      registration_status: "Invalid token provided",
+      errors: [
+        {
+          value: token,
+          msg: "Query parameter 'token' is required",
+          param: "token",
+          location: "query",
+        },
+      ],
     });
   }
 
-  const user: HydratedDocument<User> = await UserModel.findOne({
-    registrationVerificationToken: foundToken.id,
-  });
-  if (foundToken.expiryDate.getTime() > new Date().getTime()) {
-    user.emailVerified = true;
-    await user.save();
-    foundToken.expiryDate = new Date();
-    await foundToken.save();
-  } else {
-    return res.status(400).json({
-      registration_status: "E-mail verification has expired",
-    });
-  }
+  const registrationStatus =
+    await RegistrationService.getInstance().confirmUserRegistration(token);
 
-  if (!user) {
-    return registrationInternalServerError(res);
+  switch (registrationStatus) {
+    case RegistrationStatus.SUCCESS:
+      return formattedRegistrationStatusResponse(res, 200, registrationStatus);
+    case RegistrationStatus.INVALID_TOKEN:
+    case RegistrationStatus.EMAIL_VERIFICATION_EXPIRED:
+      return formattedRegistrationStatusResponse(res, 400, registrationStatus);
+    default:
+      return formattedRegistrationStatusResponse(res, 500, registrationStatus);
   }
-
-  return res.json({
-    registration_status: "Registration successful",
-  });
 });
 
-function registrationInternalServerError(res: Response) {
-  res.status(500).json({
-    registration_status: "Error occurred during registration",
-  });
+router.post("/login", (req, res, next) => {
+  passport.authenticate("local", {
+    successRedirect: "/",
+    failureRedirect: "/users/login",
+  })(req, res, next);
+});
+
+router.get("/logout", (req, res, _) => {
+  req.logout();
+  res.redirect("/users/login");
+});
+
+function formattedRegistrationStatusResponse(
+  res: Response,
+  httpStatus: number,
+  registrationStatus: RegistrationStatus
+) {
+  res
+    .status(httpStatus)
+    .json({ registration_status: RegistrationStatus[registrationStatus] });
 }
 
 export { router as UsersRouter };
