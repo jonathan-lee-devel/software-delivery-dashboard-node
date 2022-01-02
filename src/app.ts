@@ -29,7 +29,7 @@ passport.use(
       }
 
       const validPassword = await bcrypt.compare(password, foundUser.password);
-      if (validPassword) {
+      if (!validPassword) {
         return done(null, false, { message: "Invalid password" });
       }
 
@@ -78,6 +78,10 @@ connect("mongodb://localhost:27017/test")
     console.error(err);
   });
 
+// TODO remove (used for debugging)
+app.get("/", (req, res) => {
+  return res.status(200).json({ user: req.user });
+});
 app.use("/users", UsersRouter);
 
 // catch 404 and forward to error handler

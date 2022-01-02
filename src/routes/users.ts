@@ -99,6 +99,7 @@ router.get("/register/confirm", query("token").exists(), async (req, res) => {
 });
 
 router.post("/login", (req, res, next) => {
+  console.log("Logging in...");
   passport.authenticate("local", {
     successRedirect: "/",
     failureRedirect: "/users/login",
