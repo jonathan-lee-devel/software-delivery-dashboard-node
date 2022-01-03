@@ -109,7 +109,7 @@ router.post("/login", (req, res, next) => {
     }
     if (!user) {
       // 200 status to avoid error callback within angular POST request subscription
-      return res.status(200).json({ login_status: "FAILURE" });
+      return res.status(401).json({ login_status: "FAILURE" });
     }
 
     req.login(user, (loginError) => {

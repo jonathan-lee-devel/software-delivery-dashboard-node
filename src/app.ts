@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import logger from "morgan";
 import dotenv from "dotenv";
 import cors from "cors";
+import csrf from "csurf";
 import helmet from "helmet";
 import { connect, HydratedDocument } from "mongoose";
 import { UsersRouter } from "./routes/users";
@@ -30,7 +31,6 @@ passport.use(
       }
 
       const validPassword = await bcrypt.compare(password, foundUser.password);
-      console.log(`validPassword = ${validPassword}`);
       if (!validPassword) {
         return done(null, false, { message: "Invalid password" });
       }
@@ -72,16 +72,16 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-// app.use(
-//   csrf({
-//     cookie: { httpOnly: true },
-//     ignoreMethods: ["GET"],
-//   })
-// );
-// app.use((req, res, next) => {
-//   res.cookie("XSRF-TOKEN", req.csrfToken());
-//   next();
-// });
+app.use(
+  csrf({
+    cookie: { httpOnly: true },
+    ignoreMethods: ["GET"],
+  })
+);
+app.use((req, res, next) => {
+  res.cookie("XSRF-TOKEN", req.csrfToken());
+  next();
+});
 
 connect("mongodb://localhost:27017/test")
   .then((_) => {
