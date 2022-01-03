@@ -6,6 +6,7 @@ export class PasswordEncoderService {
   private salt: string;
 
   private constructor() {
+    // TODO fix bug where bcrypt.hash called before salt is generated
     bcrypt.genSalt(10, (err, salt) => {
       if (err) throw err;
       this.salt = salt;

@@ -12,6 +12,10 @@ dotenv.config();
 
 const router = express.Router();
 
+router.get("/test", (req, res, next) => {
+  res.status(200).json({ status: "success" });
+});
+
 router.post(
   "/register",
   body("name").exists(),
@@ -99,9 +103,21 @@ router.get("/register/confirm", query("token").exists(), async (req, res) => {
 });
 
 router.post("/login", (req, res, next) => {
-  passport.authenticate("local", {
-    successRedirect: "/",
-    failureRedirect: "/users/login",
+  passport.authenticate("local", (err, user, _) => {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      // 200 status to avoid error callback within angular POST request subscription
+      return res.status(200).json({ login_status: "FAILURE" });
+    }
+
+    req.login(user, (loginError) => {
+      if (loginError) {
+        return next(loginError);
+      }
+      return res.status(200).json({ login_status: "SUCCESS" });
+    });
   })(req, res, next);
 });
 

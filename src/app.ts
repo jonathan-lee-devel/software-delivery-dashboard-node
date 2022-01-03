@@ -1,7 +1,6 @@
 import createError from "http-errors";
 import express from "express";
 import cookieParser from "cookie-parser";
-import csrf from "csurf";
 import logger from "morgan";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -31,6 +30,7 @@ passport.use(
       }
 
       const validPassword = await bcrypt.compare(password, foundUser.password);
+      console.log(`validPassword = ${validPassword}`);
       if (!validPassword) {
         return done(null, false, { message: "Invalid password" });
       }
@@ -72,16 +72,16 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(
-  csrf({
-    cookie: { httpOnly: true },
-    ignoreMethods: ["GET"],
-  })
-);
-app.use((req, res, next) => {
-  res.cookie("XSRF-TOKEN", req.csrfToken());
-  next();
-});
+// app.use(
+//   csrf({
+//     cookie: { httpOnly: true },
+//     ignoreMethods: ["GET"],
+//   })
+// );
+// app.use((req, res, next) => {
+//   res.cookie("XSRF-TOKEN", req.csrfToken());
+//   next();
+// });
 
 connect("mongodb://localhost:27017/test")
   .then((_) => {
@@ -109,7 +109,8 @@ app.get("/", (req, res) => {
 app.post("/", isLoggedIn, (req, res) => {
   return res.status(200).json({ user: req.user });
 });
-app.use("/users", UsersRouter);
+
+app.use("/api/users", UsersRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
