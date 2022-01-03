@@ -74,7 +74,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(
   csrf({
-    cookie: { httpOnly: false, key: "_csrf", path: "/" },
+    cookie: { httpOnly: true },
     ignoreMethods: ["GET"],
   })
 );
