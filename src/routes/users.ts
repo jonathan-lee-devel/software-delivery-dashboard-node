@@ -71,16 +71,16 @@ router.post(
 router.get("/register/confirm", query("token").exists(), async (req, res) => {
   const { token } = req.query;
   if (!token) {
-    // Strange behaviour with express-validator query
+    // Strange behaviour with express-validator for query parameter
     return res.status(400).json({
       errors: [
         {
           value: token,
           msg: "Query parameter 'token' is required",
           param: "token",
-          location: "query"
-        }
-      ]
+          location: "query",
+        },
+      ],
     });
   }
 
@@ -101,7 +101,7 @@ router.get("/register/confirm", query("token").exists(), async (req, res) => {
 router.post("/login", (req, res, next) => {
   passport.authenticate("local", {
     successRedirect: "/",
-    failureRedirect: "/users/login"
+    failureRedirect: "/users/login",
   })(req, res, next);
 });
 

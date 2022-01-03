@@ -1,6 +1,7 @@
 import createError from "http-errors";
 import express from "express";
 import cookieParser from "cookie-parser";
+import csrf from "csurf";
 import logger from "morgan";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -14,6 +15,7 @@ import { User, UserModel } from "./models/User";
 import bcrypt from "bcrypt";
 
 import express_session from "express-session";
+import { NextFunction, Request, Response } from "express-serve-static-core";
 
 dotenv.config();
 
@@ -62,13 +64,24 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(helmet.hidePoweredBy());
 app.use(logger("dev"));
-const corsOptions = {
-  origin: "http://localhost:4200",
-};
-app.use(cors(corsOptions));
+app.use(
+  cors({
+    origin: "http://localhost:4200",
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(
+  csrf({
+    cookie: { httpOnly: false, key: "_csrf", path: "/" },
+    ignoreMethods: ["GET"],
+  })
+);
+app.use((req, res, next) => {
+  res.cookie("XSRF-TOKEN", req.csrfToken());
+  next();
+});
 
 connect("mongodb://localhost:27017/test")
   .then((_) => {
@@ -78,8 +91,22 @@ connect("mongodb://localhost:27017/test")
     console.error(err);
   });
 
+const isLoggedIn = (req: Request, res: Response, next: NextFunction) => {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  return res
+    .status(401)
+    .json({ message: "You must be logged in to view this resource" });
+};
+
 // TODO remove (used for debugging)
 app.get("/", (req, res) => {
+  return res.status(200).json({ user: req.user });
+});
+
+// TODO remove (used for debugging)
+app.post("/", isLoggedIn, (req, res) => {
   return res.status(200).json({ user: req.user });
 });
 app.use("/users", UsersRouter);
