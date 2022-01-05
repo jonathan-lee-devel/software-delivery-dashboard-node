@@ -9,7 +9,7 @@ sonarqubeScanner(
       "sonar.test.inclusions":
         "src/**/*.spec.js,src/**/*.spec.jsx,src/**/*.test.js,src/**/*.test.jsx",
       "sonar.javascript.lcov.reportPaths": "coverage/lcov.info",
-      "sonar.login": "5ac18e516d41bc2103a1b7aca0983c0dc557f96e",
+      "sonar.login": "43c5bdd93e62af907da4c61b83dfd4116129212e",
     },
   },
   () => {}

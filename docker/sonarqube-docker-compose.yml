@@ -1,0 +1,9 @@
+version: "3.8"
+
+services:
+  sonarqube:
+    image: sonarqube:latest
+    environment:
+      - SONAR_ES_BOOTSTRAP_CHECKS_DISABLED=true
+    ports:
+      - "9000:9000"

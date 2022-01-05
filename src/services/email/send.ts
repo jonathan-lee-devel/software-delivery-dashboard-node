@@ -1,6 +1,6 @@
+import { Transporter } from "nodemailer";
 import { EmailSendStatus } from "./enum/status";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
-import { Transporter } from "nodemailer";
 
 export type SendMailServiceMethod = (
   transporter: Transporter<SMTPTransport.SentMessageInfo>,
