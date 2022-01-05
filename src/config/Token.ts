@@ -1,0 +1,3 @@
+export const DEFAULT_TOKEN_SIZE = 48;
+
+export const DEFAULT_EXPIRY_TIME_MINUTES = 15;

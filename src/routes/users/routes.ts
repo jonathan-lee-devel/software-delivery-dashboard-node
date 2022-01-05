@@ -6,28 +6,30 @@ import { confirmRoute } from "./confirm";
 import { loginRoute } from "./login";
 import { logoutRoute } from "./logout";
 import { registerUser } from "../../services/registration/register";
-import { PasswordEncoderService } from "../../services/PasswordEncoderService";
-import { RegistrationVerificationTokenService } from "../../services/RegistrationVerificationTokenService";
 import { confirmUserRegistration } from "../../services/registration/confirm";
 import { sendMail } from "../../services/email/send";
 import { transporter } from "../../config/Mail";
+import { encodePassword } from "../../services/password/encode";
+import bcrypt from "bcrypt";
+import { generateRegistrationVerificationToken } from "../../services/registration-verification-token/generate";
 
 dotenv.config();
 
 const router = express.Router();
 
-const passwordEncoderService = PasswordEncoderService.getInstance();
-const registrationVerificationTokenService =
-  RegistrationVerificationTokenService.getInstance();
+bcrypt.genSalt((err, salt) => {
+  if (err) throw err;
 
-registerRoute(
-  router,
-  passwordEncoderService,
-  registrationVerificationTokenService,
-  transporter,
-  sendMail,
-  registerUser
-);
+  registerRoute(
+    router,
+    salt,
+    encodePassword,
+    generateRegistrationVerificationToken,
+    transporter,
+    sendMail,
+    registerUser
+  );
+});
 confirmRoute(router, confirmUserRegistration);
 loginRoute(router, passport);
 logoutRoute(router);

@@ -1,15 +1,21 @@
 import { HydratedDocument } from "mongoose";
 import { RegistrationStatus } from "./enum/status";
 import { User, UserModel } from "../../models/User";
-import { PasswordEncoderService } from "../PasswordEncoderService";
-import { RegistrationVerificationTokenService } from "../RegistrationVerificationTokenService";
 import { SendMailServiceMethod } from "../email/send";
 import { Transporter } from "nodemailer";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
+import { EncodePasswordServiceMethod } from "../password/encode";
+import { GenerateRegistrationVerificationTokenServiceMethod } from "../registration-verification-token/generate";
+import { RegistrationVerificationTokenModel } from "../../models/RegistrationVerificationToken";
+import {
+  DEFAULT_EXPIRY_TIME_MINUTES,
+  DEFAULT_TOKEN_SIZE,
+} from "../../config/Token";
 
 export type RegisterUserServiceMethod = (
-  passwordEncoderService: PasswordEncoderService,
-  registrationVerificationTokenService: RegistrationVerificationTokenService,
+  salt: string,
+  encodePassword: EncodePasswordServiceMethod,
+  generateRegistrationVerificationToken: GenerateRegistrationVerificationTokenServiceMethod,
   transporter: Transporter<SMTPTransport.SentMessageInfo>,
   sendMail: SendMailServiceMethod,
   name: string,
@@ -18,8 +24,9 @@ export type RegisterUserServiceMethod = (
 ) => Promise<RegistrationStatus>;
 
 export const registerUser: RegisterUserServiceMethod = async (
-  passwordEncoderService: PasswordEncoderService,
-  registrationVerificationTokenService: RegistrationVerificationTokenService,
+  salt: string,
+  encodePassword: EncodePasswordServiceMethod,
+  generateRegistrationVerificationToken: GenerateRegistrationVerificationTokenServiceMethod,
   transporter: Transporter<SMTPTransport.SentMessageInfo>,
   sendMail: SendMailServiceMethod,
   name: string,
@@ -31,14 +38,19 @@ export const registerUser: RegisterUserServiceMethod = async (
   }
 
   const registrationVerificationTokenDocument =
-    await registrationVerificationTokenService.generateAndPersistRegistrationVerificationToken();
+    await new RegistrationVerificationTokenModel(
+      await generateRegistrationVerificationToken(
+        DEFAULT_TOKEN_SIZE,
+        DEFAULT_EXPIRY_TIME_MINUTES
+      )
+    ).save();
 
   const newUser = new UserModel({
     name,
     email,
-    password: await passwordEncoderService.encodePassword(password),
+    password: await encodePassword(salt, password),
     emailVerified: false,
-    registrationVerificationToken: registrationVerificationTokenDocument.id
+    registrationVerificationToken: registrationVerificationTokenDocument.id,
   });
 
   await newUser.save();
@@ -53,13 +65,12 @@ export const registerUser: RegisterUserServiceMethod = async (
     `Please click the following link to verify your account: http://localhost:3000/users/register/confirm?token=${registrationVerificationTokenDocument.value}`
   );
 
-
   return RegistrationStatus.AWAITING_EMAIL_VERIFICATION;
 };
 
 const handleExistingUser = async (email: string): Promise<boolean> => {
   const existingUser: HydratedDocument<User> = await UserModel.findOne({
-    email
+    email,
   });
 
   if (existingUser) {
