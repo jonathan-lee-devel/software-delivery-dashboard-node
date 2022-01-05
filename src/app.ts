@@ -9,9 +9,9 @@ import { connect } from "mongoose";
 import express_session from "express-session";
 import passport from "passport";
 
-import { UsersRouter } from "./routes/users";
-import { JobsRouter } from "./routes/jobs";
-import { JobMetricsRouter } from "./routes/jobMetrics";
+import { UsersRouter } from "./routes/users/routes";
+import { JobsRouter } from "./routes/jobs/routes";
+import { JobMetricsRouter } from "./routes/job-metrics/routes";
 
 import { passportConfig } from "./config/Passport";
 import { isLoggedIn } from "./config/Auth";
