@@ -1,14 +1,12 @@
 import { Router } from "express";
-import {
-  RegistrationService,
-  RegistrationStatus,
-} from "../../services/RegistrationService";
 import { query } from "express-validator";
 import { formattedRegistrationStatusResponse } from "./helpers/format";
+import { RegistrationStatus } from "../../services/registration/enum/status";
+import { ConfirmUserRegistrationServiceMethod } from "../../services/registration/confirm";
 
 export const confirmRoute = (
   router: Router,
-  registrationService: RegistrationService
+  confirmUserRegistration: ConfirmUserRegistrationServiceMethod
 ) => {
   router.get("/register/confirm", query("token").exists(), async (req, res) => {
     const { token } = req.query;
@@ -26,8 +24,7 @@ export const confirmRoute = (
       });
     }
 
-    const registrationStatus =
-      await registrationService.confirmUserRegistration(token);
+    const registrationStatus = await confirmUserRegistration(token);
 
     switch (registrationStatus) {
       case RegistrationStatus.SUCCESS:
