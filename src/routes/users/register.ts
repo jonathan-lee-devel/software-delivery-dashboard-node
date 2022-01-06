@@ -1,11 +1,11 @@
 import { Router } from "express";
 import { body, validationResult } from "express-validator";
-import { formatRegistrationResponse } from "./helpers/format";
-import { RegistrationStatus } from "../../services/registration/enum/status";
 import { Transporter } from "nodemailer";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
-import { encodePassword } from "../../services/password/encode";
+import { formatRegistrationResponse } from "./helpers/format";
+import { RegistrationStatus } from "../../services/registration/enum/status";
 import { registerUser } from "../../services/registration/register";
+import { encodePassword } from "../../services/password/encode";
 
 export const registerRoute = (
   router: Router,
