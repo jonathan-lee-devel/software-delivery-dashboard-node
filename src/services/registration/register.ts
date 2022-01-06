@@ -1,10 +1,10 @@
 import { HydratedDocument } from "mongoose";
 import { RegistrationStatus } from "./enum/status";
 import { User, UserModel } from "../../models/User";
-import { SendMailServiceMethod } from "../email/send";
+import { sendMail } from "../email/send";
 import { Transporter } from "nodemailer";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
-import { GenerateRegistrationVerificationTokenServiceMethod } from "../registration-verification-token/generate";
+import { generateRegistrationVerificationToken } from "../registration-verification-token/generate";
 import { RegistrationVerificationTokenModel } from "../../models/RegistrationVerificationToken";
 import {
   DEFAULT_EXPIRY_TIME_MINUTES,
@@ -12,18 +12,14 @@ import {
 } from "../../config/Token";
 
 export type RegisterUserServiceMethod = (
-  generateRegistrationVerificationToken: GenerateRegistrationVerificationTokenServiceMethod,
   transporter: Transporter<SMTPTransport.SentMessageInfo>,
-  sendMail: SendMailServiceMethod,
   name: string,
   email: string,
   hashedPassword: string
 ) => Promise<RegistrationStatus>;
 
 export const registerUser: RegisterUserServiceMethod = async (
-  generateRegistrationVerificationToken: GenerateRegistrationVerificationTokenServiceMethod,
   transporter: Transporter<SMTPTransport.SentMessageInfo>,
-  sendMail: SendMailServiceMethod,
   name: string,
   email: string,
   hashedPassword: string

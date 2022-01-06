@@ -1,21 +1,16 @@
 import { Router } from "express";
 import { body, validationResult } from "express-validator";
 import { formatRegistrationResponse } from "./helpers/format";
-import { RegisterUserServiceMethod } from "../../services/registration/register";
 import { RegistrationStatus } from "../../services/registration/enum/status";
-import { SendMailServiceMethod } from "../../services/email/send";
 import { Transporter } from "nodemailer";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
-import { EncodePasswordServiceMethod } from "../../services/password/encode";
-import { generateRegistrationVerificationToken } from "../../services/registration-verification-token/generate";
+import { encodePassword } from "../../services/password/encode";
+import { registerUser } from "../../services/registration/register";
 
 export const registerRoute = (
   router: Router,
   salt: string,
-  encodePassword: EncodePasswordServiceMethod,
-  transporter: Transporter<SMTPTransport.SentMessageInfo>,
-  sendMail: SendMailServiceMethod,
-  registerUser: RegisterUserServiceMethod
+  transporter: Transporter<SMTPTransport.SentMessageInfo>
 ) => {
   router.post(
     "/register",
@@ -47,9 +42,7 @@ export const registerRoute = (
       const hashedPassword = await encodePassword(salt, password);
 
       const registrationStatus = await registerUser(
-        generateRegistrationVerificationToken,
         transporter,
-        sendMail,
         name,
         email,
         hashedPassword

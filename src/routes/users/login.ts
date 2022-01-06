@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { PassportStatic } from "passport";
+import passport from "passport";
 
-export const loginRoute = (router: Router, passport: PassportStatic) => {
+export const loginRoute = (router: Router) => {
   router.post("/login", (req, res, next) => {
     passport.authenticate("local", (err, user, _) => {
       if (err) {

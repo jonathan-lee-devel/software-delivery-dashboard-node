@@ -2,12 +2,9 @@ import { Router } from "express";
 import { query } from "express-validator";
 import { formatRegistrationResponse } from "./helpers/format";
 import { RegistrationStatus } from "../../services/registration/enum/status";
-import { ConfirmUserRegistrationServiceMethod } from "../../services/registration/confirm";
+import { confirmUserRegistration } from "../../services/registration/confirm";
 
-export const confirmRoute = (
-  router: Router,
-  confirmUserRegistration: ConfirmUserRegistrationServiceMethod
-) => {
+export const confirmRoute = (router: Router) => {
   router.get("/register/confirm", query("token").exists(), async (req, res) => {
     const { token } = req.query;
     if (!token) {
