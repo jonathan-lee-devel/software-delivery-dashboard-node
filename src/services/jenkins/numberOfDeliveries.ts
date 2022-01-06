@@ -1,12 +1,7 @@
 import { JenkinsDao } from "../../dao/JenkinsDao";
 import { NumberOfDeliveriesDto } from "../../dto/metrics/NumberOfDeliveriesDto";
 
-export type NumberOfDeliveriesServiceMethod = (
-  jenkinsDao: JenkinsDao,
-  jobName: string
-) => Promise<NumberOfDeliveriesDto>;
-
-export const getNumberOfDeliveries: NumberOfDeliveriesServiceMethod = async (
+export const getNumberOfDeliveries = async (
   jenkinsDao: JenkinsDao,
   jobName: string
 ): Promise<NumberOfDeliveriesDto> => {

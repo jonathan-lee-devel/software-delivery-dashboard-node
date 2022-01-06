@@ -11,14 +11,7 @@ import {
   DEFAULT_TOKEN_SIZE,
 } from "../../config/Token";
 
-export type RegisterUserServiceMethod = (
-  transporter: Transporter<SMTPTransport.SentMessageInfo>,
-  name: string,
-  email: string,
-  hashedPassword: string
-) => Promise<RegistrationStatus>;
-
-export const registerUser: RegisterUserServiceMethod = async (
+export const registerUser = async (
   transporter: Transporter<SMTPTransport.SentMessageInfo>,
   name: string,
   email: string,

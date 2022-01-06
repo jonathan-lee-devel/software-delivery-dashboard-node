@@ -1,11 +1,6 @@
 import bcrypt from "bcrypt";
 
-export type EncodePasswordServiceMethod = (
-  salt: string,
-  password: string
-) => Promise<string>;
-
-export const encodePassword: EncodePasswordServiceMethod = async (
+export const encodePassword = async (
   salt: string,
   password: string
 ): Promise<string> => {

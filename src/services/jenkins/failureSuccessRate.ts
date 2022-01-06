@@ -1,12 +1,7 @@
 import { JenkinsDao } from "../../dao/JenkinsDao";
 import { FailureSuccessRateDto } from "../../dto/metrics/FailureSuccessRateDto";
 
-export type FailureSuccessRateServiceMethod = (
-  jenkinsDao: JenkinsDao,
-  jobName: string
-) => Promise<FailureSuccessRateDto>;
-
-export const getFailureSuccessRate: FailureSuccessRateServiceMethod = async (
+export const getFailureSuccessRate = async (
   jenkinsDao: JenkinsDao,
   jobName: string
 ): Promise<FailureSuccessRateDto> => {

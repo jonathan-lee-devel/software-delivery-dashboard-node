@@ -1,12 +1,7 @@
 import { JenkinsDao } from "../../dao/JenkinsDao";
 import { RestoreTimeDto } from "../../dto/metrics/RestoreTimeDto";
 
-export type RestoreTimeServiceMethod = (
-  jenkinsDao: JenkinsDao,
-  jobName: string
-) => Promise<RestoreTimeDto>;
-
-export const getRestoreTime: RestoreTimeServiceMethod = async (
+export const getRestoreTime = async (
   jenkinsDao: JenkinsDao,
   jobName: string
 ): Promise<RestoreTimeDto> => {

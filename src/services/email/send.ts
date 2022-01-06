@@ -2,14 +2,7 @@ import { Transporter } from "nodemailer";
 import { EmailSendStatus } from "./enum/status";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
 
-export type SendMailServiceMethod = (
-  transporter: Transporter<SMTPTransport.SentMessageInfo>,
-  addressTo: string,
-  subject: string,
-  text: string
-) => Promise<EmailSendStatus>;
-
-export const sendMail: SendMailServiceMethod = async (
+export const sendMail = async (
   transporter: Transporter<SMTPTransport.SentMessageInfo>,
   addressTo: string,
   subject: string,
