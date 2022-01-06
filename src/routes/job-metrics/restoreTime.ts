@@ -1,12 +1,8 @@
 import { Router } from "express";
 import { JenkinsDao } from "../../dao/JenkinsDao";
-import { RestoreTimeServiceMethod } from "../../services/jenkins/restoreTime";
+import { getRestoreTime } from "../../services/jenkins/restoreTime";
 
-export const restoreTimeRoute = (
-  router: Router,
-  jenkinsDao: JenkinsDao,
-  getRestoreTime: RestoreTimeServiceMethod
-) => {
+export const restoreTimeRoute = (router: Router, jenkinsDao: JenkinsDao) => {
   router.get("/:jobName/restoreTime", (req, res, _) => {
     getRestoreTime(jenkinsDao, req.params.jobName)
       .then((restoreTime) => res.json(restoreTime))

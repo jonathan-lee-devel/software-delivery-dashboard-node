@@ -5,10 +5,6 @@ import { failureSuccessRateRoute } from "./failureSuccessRate";
 import { deliveryTimeRoute } from "./deliveryTime";
 import { restoreTimeRoute } from "./restoreTime";
 import { numberOfDeliveriesRoute } from "./numberOfDeliveries";
-import { getFailureSuccessRate } from "../../services/jenkins/failureSuccessRate";
-import { getDeliveryTime } from "../../services/jenkins/deliveryTime";
-import { getRestoreTime } from "../../services/jenkins/restoreTime";
-import { getNumberOfDeliveries } from "../../services/jenkins/numberOfDeliveries";
 
 dotenv.config();
 
@@ -19,9 +15,9 @@ const jenkinsDao = new JenkinsDao(
   process.env.JENKINS_SERVER_PASSWORD
 );
 
-failureSuccessRateRoute(router, jenkinsDao, getFailureSuccessRate);
-deliveryTimeRoute(router, jenkinsDao, getDeliveryTime);
-restoreTimeRoute(router, jenkinsDao, getRestoreTime);
-numberOfDeliveriesRoute(router, jenkinsDao, getNumberOfDeliveries);
+failureSuccessRateRoute(router, jenkinsDao);
+deliveryTimeRoute(router, jenkinsDao);
+restoreTimeRoute(router, jenkinsDao);
+numberOfDeliveriesRoute(router, jenkinsDao);
 
 export { router as JobMetricsRouter };

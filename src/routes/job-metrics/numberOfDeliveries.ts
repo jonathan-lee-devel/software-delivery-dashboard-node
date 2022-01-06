@@ -1,11 +1,10 @@
 import { Router } from "express";
 import { JenkinsDao } from "../../dao/JenkinsDao";
-import { NumberOfDeliveriesServiceMethod } from "../../services/jenkins/numberOfDeliveries";
+import { getNumberOfDeliveries } from "../../services/jenkins/numberOfDeliveries";
 
 export const numberOfDeliveriesRoute = (
   router: Router,
-  jenkinsDao: JenkinsDao,
-  getNumberOfDeliveries: NumberOfDeliveriesServiceMethod
+  jenkinsDao: JenkinsDao
 ) => {
   router.get("/:jobName/numberOfDeliveries", (req, res, _) => {
     getNumberOfDeliveries(jenkinsDao, req.params.jobName)
