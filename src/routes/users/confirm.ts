@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { query } from "express-validator";
-import { formattedRegistrationStatusResponse } from "./helpers/format";
+import { formatRegistrationResponse } from "./helpers/format";
 import { RegistrationStatus } from "../../services/registration/enum/status";
 import { ConfirmUserRegistrationServiceMethod } from "../../services/registration/confirm";
 
@@ -28,24 +28,12 @@ export const confirmRoute = (
 
     switch (registrationStatus) {
       case RegistrationStatus.SUCCESS:
-        return formattedRegistrationStatusResponse(
-          res,
-          200,
-          registrationStatus
-        );
+        return formatRegistrationResponse(res, 200, registrationStatus);
       case RegistrationStatus.INVALID_TOKEN:
       case RegistrationStatus.EMAIL_VERIFICATION_EXPIRED:
-        return formattedRegistrationStatusResponse(
-          res,
-          400,
-          registrationStatus
-        );
+        return formatRegistrationResponse(res, 400, registrationStatus);
       default:
-        return formattedRegistrationStatusResponse(
-          res,
-          500,
-          registrationStatus
-        );
+        return formatRegistrationResponse(res, 500, registrationStatus);
     }
   });
 };

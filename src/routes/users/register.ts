@@ -1,19 +1,17 @@
 import { Router } from "express";
 import { body, validationResult } from "express-validator";
-import { formattedRegistrationStatusResponse } from "./helpers/format";
+import { formatRegistrationResponse } from "./helpers/format";
 import { RegisterUserServiceMethod } from "../../services/registration/register";
 import { RegistrationStatus } from "../../services/registration/enum/status";
 import { SendMailServiceMethod } from "../../services/email/send";
 import { Transporter } from "nodemailer";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
 import { EncodePasswordServiceMethod } from "../../services/password/encode";
-import { GenerateRegistrationVerificationTokenServiceMethod } from "../../services/registration-verification-token/generate";
 
 export const registerRoute = (
   router: Router,
   salt: string,
   encodePassword: EncodePasswordServiceMethod,
-  generateRegistrationVerificationToken: GenerateRegistrationVerificationTokenServiceMethod,
   transporter: Transporter<SMTPTransport.SentMessageInfo>,
   sendMail: SendMailServiceMethod,
   registerUser: RegisterUserServiceMethod
@@ -45,35 +43,23 @@ export const registerRoute = (
 
       const { name, email, password } = req.body;
 
+      const hashedPassword = await encodePassword(salt, password);
+
       const registrationStatus = await registerUser(
-        salt,
-        encodePassword,
-        generateRegistrationVerificationToken,
         transporter,
         sendMail,
         name,
         email,
-        password
+        hashedPassword
       );
+
       switch (registrationStatus) {
         case RegistrationStatus.AWAITING_EMAIL_VERIFICATION:
-          return formattedRegistrationStatusResponse(
-            res,
-            200,
-            registrationStatus
-          );
+          return formatRegistrationResponse(res, 200, registrationStatus);
         case RegistrationStatus.USER_ALREADY_EXISTS:
-          return formattedRegistrationStatusResponse(
-            res,
-            409,
-            registrationStatus
-          );
+          return formatRegistrationResponse(res, 409, registrationStatus);
         default:
-          return formattedRegistrationStatusResponse(
-            res,
-            500,
-            registrationStatus
-          );
+          return formatRegistrationResponse(res, 500, registrationStatus);
       }
     }
   );

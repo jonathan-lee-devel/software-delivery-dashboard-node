@@ -10,9 +10,6 @@ export const getFailureSuccessRate: FailureSuccessRateServiceMethod = async (
   jenkinsDao: JenkinsDao,
   jobName: string
 ): Promise<FailureSuccessRateDto> => {
-  let successCount = 0;
-  let failureCount = 0;
-
   const { builds } = await jenkinsDao.getJob(jobName);
 
   if (!builds || builds.length < 1) {
@@ -24,6 +21,9 @@ export const getFailureSuccessRate: FailureSuccessRateServiceMethod = async (
     buildPromises.push(jenkinsDao.getBuild(jobName, i));
   }
   const buildWithDetailsDtos = await Promise.all(buildPromises);
+
+  let successCount = 0;
+  let failureCount = 0;
   buildWithDetailsDtos.forEach((buildWithDetails) => {
     if (buildWithDetails.result === "SUCCESS") {
       successCount++;

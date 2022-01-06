@@ -4,7 +4,6 @@ import { User, UserModel } from "../../models/User";
 import { SendMailServiceMethod } from "../email/send";
 import { Transporter } from "nodemailer";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
-import { EncodePasswordServiceMethod } from "../password/encode";
 import { GenerateRegistrationVerificationTokenServiceMethod } from "../registration-verification-token/generate";
 import { RegistrationVerificationTokenModel } from "../../models/RegistrationVerificationToken";
 import {
@@ -13,25 +12,21 @@ import {
 } from "../../config/Token";
 
 export type RegisterUserServiceMethod = (
-  salt: string,
-  encodePassword: EncodePasswordServiceMethod,
   generateRegistrationVerificationToken: GenerateRegistrationVerificationTokenServiceMethod,
   transporter: Transporter<SMTPTransport.SentMessageInfo>,
   sendMail: SendMailServiceMethod,
   name: string,
   email: string,
-  password: string
+  hashedPassword: string
 ) => Promise<RegistrationStatus>;
 
 export const registerUser: RegisterUserServiceMethod = async (
-  salt: string,
-  encodePassword: EncodePasswordServiceMethod,
   generateRegistrationVerificationToken: GenerateRegistrationVerificationTokenServiceMethod,
   transporter: Transporter<SMTPTransport.SentMessageInfo>,
   sendMail: SendMailServiceMethod,
   name: string,
   email: string,
-  password: string
+  hashedPassword: string
 ): Promise<RegistrationStatus> => {
   if (!(await handleExistingUser(email))) {
     return RegistrationStatus.USER_ALREADY_EXISTS;
@@ -48,7 +43,7 @@ export const registerUser: RegisterUserServiceMethod = async (
   const newUser = new UserModel({
     name,
     email,
-    password: await encodePassword(salt, password),
+    password: hashedPassword,
     emailVerified: false,
     registrationVerificationToken: registrationVerificationTokenDocument.id,
   });
