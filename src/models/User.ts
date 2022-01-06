@@ -3,7 +3,6 @@ import { RegistrationVerificationToken } from "./RegistrationVerificationToken";
 import { ObjectID } from "bson";
 
 export interface User {
-  name: string;
   email: string;
   password: string;
   emailVerified: boolean;
@@ -11,11 +10,6 @@ export interface User {
 }
 
 const schema = new Schema<User>({
-  name: {
-    type: String,
-    required: true,
-    unique: false,
-  },
   email: {
     type: String,
     required: true,

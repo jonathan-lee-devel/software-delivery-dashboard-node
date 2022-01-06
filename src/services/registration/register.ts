@@ -13,7 +13,6 @@ import {
 
 export const registerUser = async (
   transporter: Transporter<SMTPTransport.SentMessageInfo>,
-  name: string,
   email: string,
   hashedPassword: string
 ): Promise<RegistrationStatus> => {
@@ -30,7 +29,6 @@ export const registerUser = async (
     ).save();
 
   const newUser = new UserModel({
-    name,
     email,
     password: hashedPassword,
     emailVerified: false,

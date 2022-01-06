@@ -33,6 +33,7 @@ app.use(helmet.hidePoweredBy());
 app.use(logger("dev"));
 app.use(
   cors({
+    credentials: true,
     origin: process.env.FRONT_END_URL,
   })
 );

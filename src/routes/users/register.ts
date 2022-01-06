@@ -14,7 +14,6 @@ export const registerRoute = (
 ) => {
   router.post(
     "/register",
-    body("name").exists(),
     body("email", "Only valid Ericsson e-mail addresses are allowed")
       .exists()
       .isEmail()
@@ -37,13 +36,12 @@ export const registerRoute = (
         return res.status(400).json({ errors: errors.array() });
       }
 
-      const { name, email, password } = req.body;
+      const { email, password } = req.body;
 
       const hashedPassword = await encodePassword(salt, password);
 
       const registrationStatus = await registerUser(
         transporter,
-        name,
         email,
         hashedPassword
       );
