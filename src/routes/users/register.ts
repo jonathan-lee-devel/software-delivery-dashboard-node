@@ -7,6 +7,7 @@ import { SendMailServiceMethod } from "../../services/email/send";
 import { Transporter } from "nodemailer";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
 import { EncodePasswordServiceMethod } from "../../services/password/encode";
+import { generateRegistrationVerificationToken } from "../../services/registration-verification-token/generate";
 
 export const registerRoute = (
   router: Router,
@@ -46,6 +47,7 @@ export const registerRoute = (
       const hashedPassword = await encodePassword(salt, password);
 
       const registrationStatus = await registerUser(
+        generateRegistrationVerificationToken,
         transporter,
         sendMail,
         name,
