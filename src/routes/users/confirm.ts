@@ -25,7 +25,7 @@ export const confirmRoute = (router: Router) => {
 
     switch (registrationStatus) {
       case RegistrationStatus.SUCCESS:
-        return formatRegistrationResponse(res, 200, registrationStatus);
+        return res.redirect(`${process.env.FRONT_END_URL}/login`);
       case RegistrationStatus.INVALID_TOKEN:
       case RegistrationStatus.EMAIL_VERIFICATION_EXPIRED:
         return formatRegistrationResponse(res, 400, registrationStatus);

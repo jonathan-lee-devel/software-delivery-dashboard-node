@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import logger from "morgan";
 import dotenv from "dotenv";
 import cors from "cors";
+import csrf from "csurf";
 import helmet from "helmet";
 import { connect } from "mongoose";
 import express_session from "express-session";
@@ -14,7 +15,6 @@ import { JobsRouter } from "./routes/jobs/routes";
 import { JobMetricsRouter } from "./routes/job-metrics/routes";
 
 import { passportConfig } from "./config/Passport";
-import { isLoggedIn } from "./config/Auth";
 
 dotenv.config();
 
@@ -40,17 +40,16 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-// TODO re-enable CSRF, (disabled for development)
-// app.use(
-//   csrf({
-//     cookie: { httpOnly: true },
-//     ignoreMethods: ["GET"],
-//   })
-// );
-// app.use((req, res, next) => {
-//   res.cookie("XSRF-TOKEN", req.csrfToken());
-//   next();
-// });
+app.use(
+  csrf({
+    cookie: { httpOnly: true },
+    ignoreMethods: ["GET"],
+  })
+);
+app.use((req, res, next) => {
+  res.cookie("XSRF-TOKEN", req.csrfToken());
+  next();
+});
 
 connect("mongodb://localhost:27017/test")
   .then((_) => {
@@ -59,16 +58,6 @@ connect("mongodb://localhost:27017/test")
   .catch((err) => {
     console.error(err);
   });
-
-// TODO remove (used for debugging)
-app.get("/", (req, res) => {
-  return res.status(200).json({ user: req.user });
-});
-
-// TODO remove (used for debugging)
-app.post("/", isLoggedIn, (req, res) => {
-  return res.status(200).json({ user: req.user });
-});
 
 app.use("/users", UsersRouter);
 app.use("/jobs", JobsRouter);
