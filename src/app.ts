@@ -51,7 +51,7 @@ app.use((req, res, next) => {
   next();
 });
 
-connect("mongodb://localhost:27017/test")
+connect(process.env.DATABASE_URL)
   .then((_) => {
     console.log("Connected to database");
   })
