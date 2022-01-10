@@ -50,6 +50,14 @@ app.use((req, res, next) => {
   res.cookie("XSRF-TOKEN", req.csrfToken());
   next();
 });
+app.use((req, res, next) => {
+  res.header("X-XSRF-TOKEN", req.csrfToken());
+  next();
+});
+
+app.get("/", (req, res, next) => {
+  res.json({ csrf: req.csrfToken() });
+});
 
 connect(process.env.DATABASE_URL)
   .then((_) => {
