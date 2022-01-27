@@ -1,6 +1,6 @@
-import { model, Schema } from "mongoose";
-import { RegistrationVerificationToken } from "./RegistrationVerificationToken";
-import { ObjectID } from "bson";
+import {model, Schema} from 'mongoose';
+import {RegistrationVerificationToken} from './RegistrationVerificationToken';
+import {ObjectID} from 'bson';
 
 export interface User {
   email: string;
@@ -32,4 +32,4 @@ const schema = new Schema<User>({
   },
 });
 
-export const UserModel = model<User>("User", schema);
+export const UserModel = model<User>('User', schema);

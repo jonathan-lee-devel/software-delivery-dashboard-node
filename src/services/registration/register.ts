@@ -1,20 +1,20 @@
-import { HydratedDocument } from "mongoose";
-import { RegistrationStatus } from "./enum/status";
-import { User, UserModel } from "../../models/User";
-import { sendMail } from "../email/send";
-import { Transporter } from "nodemailer";
-import SMTPTransport from "nodemailer/lib/smtp-transport";
-import { generateRegistrationVerificationToken } from "../registration-verification-token/generate";
-import { RegistrationVerificationTokenModel } from "../../models/RegistrationVerificationToken";
+import {HydratedDocument} from 'mongoose';
+import {RegistrationStatus} from './enum/status';
+import {User, UserModel} from '../../models/User';
+import {sendMail} from '../email/send';
+import {Transporter} from 'nodemailer';
+import SMTPTransport from 'nodemailer/lib/smtp-transport';
+import {generateRegistrationVerificationToken} from '../registration-verification-token/generate';
+import {RegistrationVerificationTokenModel} from '../../models/RegistrationVerificationToken';
 import {
   DEFAULT_EXPIRY_TIME_MINUTES,
   DEFAULT_TOKEN_SIZE,
-} from "../../config/Token";
+} from '../../config/Token';
 
 export const registerUser = async (
-  transporter: Transporter<SMTPTransport.SentMessageInfo>,
-  email: string,
-  hashedPassword: string
+    transporter: Transporter<SMTPTransport.SentMessageInfo>,
+    email: string,
+    hashedPassword: string,
 ): Promise<RegistrationStatus> => {
   if (!(await handleExistingUser(email))) {
     return RegistrationStatus.USER_ALREADY_EXISTS;
@@ -22,10 +22,10 @@ export const registerUser = async (
 
   const registrationVerificationTokenDocument =
     await new RegistrationVerificationTokenModel(
-      await generateRegistrationVerificationToken(
-        DEFAULT_TOKEN_SIZE,
-        DEFAULT_EXPIRY_TIME_MINUTES
-      )
+        await generateRegistrationVerificationToken(
+            DEFAULT_TOKEN_SIZE,
+            DEFAULT_EXPIRY_TIME_MINUTES,
+        ),
     ).save();
 
   const newUser = new UserModel({
@@ -41,10 +41,10 @@ export const registerUser = async (
   await registrationVerificationTokenDocument.save();
 
   sendMail(
-    transporter,
-    email,
-    "Registration Confirmation",
-    `Please click the following link to verify your account: http://localhost:3000/users/register/confirm?token=${registrationVerificationTokenDocument.value}`
+      transporter,
+      email,
+      'Registration Confirmation',
+      `Please click the following link to verify your account: http://localhost:3000/users/register/confirm?token=${registrationVerificationTokenDocument.value}`,
   );
 
   return RegistrationStatus.AWAITING_EMAIL_VERIFICATION;

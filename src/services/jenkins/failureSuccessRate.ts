@@ -1,14 +1,14 @@
-import { JenkinsDao } from "../../dao/JenkinsDao";
-import { FailureSuccessRateDto } from "../../dto/metrics/FailureSuccessRateDto";
+import {JenkinsDao} from '../../dao/JenkinsDao';
+import {FailureSuccessRateDto} from '../../dto/metrics/FailureSuccessRateDto';
 
 export const getFailureSuccessRate = async (
-  jenkinsDao: JenkinsDao,
-  jobName: string
+    jenkinsDao: JenkinsDao,
+    jobName: string,
 ): Promise<FailureSuccessRateDto> => {
-  const { builds } = await jenkinsDao.getJob(jobName);
+  const {builds} = await jenkinsDao.getJob(jobName);
 
   if (!builds || builds.length < 1) {
-    return Promise.reject("No builds available");
+    return Promise.reject('No builds available');
   }
 
   const buildPromises = [];
@@ -20,9 +20,9 @@ export const getFailureSuccessRate = async (
   let successCount = 0;
   let failureCount = 0;
   buildWithDetailsDtos.forEach((buildWithDetails) => {
-    if (buildWithDetails.result === "SUCCESS") {
+    if (buildWithDetails.result === 'SUCCESS') {
       successCount++;
-    } else if (buildWithDetails.result === "FAILURE") {
+    } else if (buildWithDetails.result === 'FAILURE') {
       failureCount++;
     }
   });

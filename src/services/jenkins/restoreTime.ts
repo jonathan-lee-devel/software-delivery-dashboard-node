@@ -1,20 +1,20 @@
-import { JenkinsDao } from "../../dao/JenkinsDao";
-import { RestoreTimeDto } from "../../dto/metrics/RestoreTimeDto";
+import {JenkinsDao} from '../../dao/JenkinsDao';
+import {RestoreTimeDto} from '../../dto/metrics/RestoreTimeDto';
 
 export const getRestoreTime = async (
-  jenkinsDao: JenkinsDao,
-  jobName: string
+    jenkinsDao: JenkinsDao,
+    jobName: string,
 ): Promise<RestoreTimeDto> => {
   const job = await jenkinsDao.getJob(jobName);
 
   const lastFailedBuild = await jenkinsDao.getBuild(
-    jobName,
-    job.lastFailedBuild.number
+      jobName,
+      job.lastFailedBuild.number,
   );
 
   if (!lastFailedBuild) {
     return {
-      restore_time: "No failed builds",
+      restore_time: 'No failed builds',
     };
   }
 
@@ -26,15 +26,15 @@ export const getRestoreTime = async (
   let found = false;
   let previousSuccessfulBuildTimestamp = lastFailedBuild.timestamp;
   buildWithDetailsDtos.forEach((buildWithDetails) => {
-    if (buildWithDetails.result === "SUCCESS") {
+    if (buildWithDetails.result === 'SUCCESS') {
       found = true;
       previousSuccessfulBuildTimestamp = buildWithDetails.timestamp;
     }
   });
 
   return {
-    restore_time: found
-      ? lastFailedBuild.timestamp - previousSuccessfulBuildTimestamp
-      : "No successful builds found",
+    restore_time: found ?
+      lastFailedBuild.timestamp - previousSuccessfulBuildTimestamp :
+      'No successful builds found',
   };
 };

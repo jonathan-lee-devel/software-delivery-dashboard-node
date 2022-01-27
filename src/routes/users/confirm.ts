@@ -1,21 +1,21 @@
-import { Router } from "express";
-import { query } from "express-validator";
-import { formatRegistrationResponse } from "./helpers/format";
-import { RegistrationStatus } from "../../services/registration/enum/status";
-import { confirmUserRegistration } from "../../services/registration/confirm";
+import {Router} from 'express';
+import {query} from 'express-validator';
+import {formatRegistrationResponse} from './helpers/format';
+import {RegistrationStatus} from '../../services/registration/enum/status';
+import {confirmUserRegistration} from '../../services/registration/confirm';
 
 export const confirmRoute = (router: Router) => {
-  router.get("/register/confirm", query("token").exists(), async (req, res) => {
-    const { token } = req.query;
+  router.get('/register/confirm', query('token').exists(), async (req, res) => {
+    const {token} = req.query;
     if (!token) {
       // Strange behaviour with express-validator for query parameter
       return res.status(400).json({
         errors: [
           {
             value: token,
-            msg: "Query parameter 'token' is required",
-            param: "token",
-            location: "query",
+            msg: 'Query parameter \'token\' is required',
+            param: 'token',
+            location: 'query',
           },
         ],
       });

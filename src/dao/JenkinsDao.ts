@@ -3,7 +3,8 @@ import {JobDto} from '../dto/JobDto';
 import {BuildWithDetailsDto} from '../dto/BuildWithDetailsDto';
 
 /**
- * Jenkins data-access-object used to retrieve data from the Jenkins server via the REST API.
+ * Jenkins data-access-object used to retrieve data
+ * from the Jenkins server via the REST API.
  */
 class JenkinsDao {
   /**
@@ -12,14 +13,14 @@ class JenkinsDao {
   private readonly jenkinsServerUrl: string;
 
   /**
-     * @private auth string used for basic authentication when connecting to the Jenkins server.
+     * @private used for basic authentication.
      */
   private readonly auth: string;
 
   /**
-     * @param jenkinsServerUrl URL for the Jenkins server which is to be connected to
-     * @param jenkinsServerUsername username to be used when authenticating with the Jenkins server
-     * @param jenkinsServerPassword password to be used when authenticating with the Jenkins server
+     * @param {string} jenkinsServerUrl URL which is to be connected to
+     * @param {string} jenkinsServerUsername to be used when authenticating
+     * @param {string} jenkinsServerPassword to be used when authenticating
      */
   public constructor(
       jenkinsServerUrl: string,
@@ -29,15 +30,15 @@ class JenkinsDao {
     this.jenkinsServerUrl = jenkinsServerUrl;
     this.auth =
             'Basic ' +
-            Buffer.from(`${jenkinsServerUsername}:${jenkinsServerPassword}`).toString(
-                'base64',
-            );
+            Buffer.from(
+                `${jenkinsServerUsername}:${jenkinsServerPassword}`)
+                .toString('base64');
   }
 
   /**
      * Returns all available jobs.
      *
-     * @return all available jobs provided in a data transfer object
+     * @return {Promise<JobDto[]>} all available jobs
      */
   public async getAllJobs(): Promise<JobDto[]> {
     return new Promise((resolve, reject) => {
@@ -54,9 +55,10 @@ class JenkinsDao {
                 ${response.statusCode}`,
             );
             if (JenkinsDao.isHtmlResponse(body)) {
-              reject(
+              reject(new Error(
                   'Jenkins server returned an HTML response ' +
-                  'indicating no OK HTTP status response',
+                            'indicating no OK HTTP status response',
+              ),
               );
             }
             resolve(body.jobs);
@@ -68,8 +70,8 @@ class JenkinsDao {
   /**
      * Returns the job specified by the provided name.
      *
-     * @param jobName name of the job to be returned
-     * @return job information provided in a data transfer object
+     * @param {string} jobName name of the job to be returned
+     * @return {Promise<JobDto>} job information provided in a DTO
      */
   public async getJob(jobName: string): Promise<JobDto> {
     return new Promise((resolve, reject) => {
@@ -82,11 +84,14 @@ class JenkinsDao {
           (error, response, body) => {
             if (error) return console.error(error);
             console.log(
-                `Retrieved job [${jobName}] with status: ${response.statusCode}`,
+                `Retrieved job [${jobName}] with status: 
+                ${response.statusCode}`,
             );
             if (JenkinsDao.isHtmlResponse(body)) {
-              reject(
-                  'Jenkins server returned an HTML response indicating no OK HTTP status response',
+              reject(new Error(
+                  'Jenkins server returned an HTML response' +
+                      ' indicating no OK HTTP status response',
+              ),
               );
             }
             resolve(body);
@@ -98,9 +103,9 @@ class JenkinsDao {
   /**
      * Retrieves the build specified by job name and build number.
      *
-     * @param jobName name of the job for which data is to be retrieved
-     * @param buildNumber number for the given build
-     * @return build information provided in a data transfer object
+     * @param {string} jobName name of the job for which data is to be retrieved
+     * @param {number} buildNumber number for the given build
+     * @return {Promise<BuildWithDetailsDto>} build information
      */
   public async getBuild(
       jobName: string,
@@ -116,11 +121,16 @@ class JenkinsDao {
           (error, response, body) => {
             if (error) return console.error(error);
             console.log(
-                `Retrieved build [${jobName}/${buildNumber}] with status: ${response.statusCode}`,
+                `Retrieved build [
+                ${jobName}/${buildNumber}
+                ] with status: ${response.statusCode}`,
             );
             if (JenkinsDao.isHtmlResponse(body)) {
               reject(
-                  'Jenkins server returned an HTML response indicating no OK HTTP status response',
+                  new Error(
+                      'Jenkins server returned an HTML response' +
+                  ' indicating no OK HTTP status response',
+                  ),
               );
             }
             resolve(body);
@@ -132,8 +142,8 @@ class JenkinsDao {
   /**
      * Determines whether the provided HTTP response body is an HTML response.
      *
-     * @param body HTTP response body to be checked
-     * @return boolean indicating whether the provided HTTP response body is an HTML response
+     * @param {Response} body HTTP response body to be checked
+     * @return {boolean} indicating whether the provided response body is HTML
      * @private used within the Jenkins data access object class only
      */
   private static isHtmlResponse(body: any): boolean {
